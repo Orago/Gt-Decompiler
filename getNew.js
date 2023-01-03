@@ -1,19 +1,5 @@
+const { parse, save, compare_items } = require('./gt-parser/main');
 
-const { parse, save } = require('./items-decompiler.js');
+const newParsed = compare_items('versions/12_30_2022.dat', 'versions/items.dat');
 
-
-doWithParsed: {
-	const oldParsed = parse('items-old.dat').items;
-	const newParsed = parse('items.dat');
-	const oldKeys = Object.keys(oldParsed);
-
-	const newItems = [];
-	
-	for (let [name, data] of Object.entries(newParsed.items))
-		if (!oldKeys.includes(name))
-			newItems.push(name);
-
-	newParsed.items = newItems;
-
-	save(newParsed);
-}
+save(newParsed);
