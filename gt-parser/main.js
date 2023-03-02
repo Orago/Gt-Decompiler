@@ -1,5 +1,4 @@
 const fs = require("fs");
-const util = require('util');
 
 class BinaryReader {
 	constructor(buf) {
@@ -7,19 +6,18 @@ class BinaryReader {
 		this.index = 0;
 	}
 	read_short() {
-		const val = this.buff.readUInt16LE(this.index);
 		this.index += 2;
-		return val;
+
+		return this.buff.readUInt16LE(this.index - 2);
 	}
 	read_int() {
-		const val = this.buff.readInt32LE(this.index);
 		this.index += 4;
-		return val;
+
+		return this.buff.readInt32LE(this.index - 4);
 	}
 	read_char() {
-		const val = this.buff[this.index];
 		this.index++;
-		return val;
+		return this.buff[this.index - 1];
 	}
 }
 
@@ -258,7 +256,7 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 
 		changedItemIDs.push(name);
 
-		changes.push(`[+] ${firstParsed.fileName}: ${name}`);
+		changes.push(`[+] ${secondParsed.fileName}: ${name}`);
 	}
 
 	for (let [name, data] of Object.entries(firstParsed.items)){
@@ -266,19 +264,21 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 
 		const { mode } = _compare_items__handle([firstKeys, secondKeys], name);
 
-		if (mode == 0 || changedItemIDs.includes(name)) continue;
+		if (mode == 0 || changedItemIDs.includes(name))
+			continue;
 
 		changedItems.push(
 			handle_return(name, data).name
 		);
 
-		changes.push(`[-] ${secondParsed.fileName}: ${name}`);
+		changes.push(`[-] ${firstParsed.fileName}: ${name}`);
 	}
 
 	secondParsed.files = [firstParsed.fileName, secondParsed.fileName];
 
 	delete secondParsed.fileName;
 	delete secondParsed.items;
+	
 	secondParsed.changes = changes;
 	secondParsed.newItemCount = changedItems.length;
 	secondParsed.items = changedItems;
@@ -289,9 +289,8 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 const save = async (parsed, fileName = 'output/items.json') => {
 	const dir = require('path').dirname(fileName);
 	
-	if (!fs.existsSync(dir)){
+	if (!fs.existsSync(dir))
     fs.mkdirSync(dir);
-	}
 
 	fs.writeFile(fileName, JSON.stringify(parsed, null, 2), (err) => { 
 		if (err) console.log(err); 

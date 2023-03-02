@@ -10,12 +10,16 @@ async function ls(path, ...options) {
 
   for await (const fileEntry of dir) {
 		const filePath = join(path, fileEntry.name);
+
+		if (filePath.includes('.') && !filePath.endsWith('.rttex'))
+			continue;
+
 		const stats = await fs.promises.lstat(filePath);
 
 		if (stats.isDirectory()){
 			console.log(fileEntry.name, stats.isDirectory());
 
-			await ls(filePath, ...options);
+			ls(filePath, ...options);
 		}
 
 		if (stats.isFile() && filePath.endsWith('.rttex')){
@@ -27,6 +31,11 @@ async function ls(path, ...options) {
   }
 }
 
+let pathInputs = [
+	'C:\\Users\\moshl\\AppData\\Local\\Growtopia\\cache',
+	'E:\\Apps\\Growtopia'
+];
 
-ls('./rttexInput', './output/images/')
-.catch(console.error)
+for (const path of pathInputs)
+	ls(path, './output/images/')
+	.catch(console.error);
