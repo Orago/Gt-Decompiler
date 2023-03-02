@@ -25,8 +25,6 @@ async function ls(path, ...options) {
 			image.write(newDir);
 		}
   }
-
-	// console.log('Done!')
 }
 
 

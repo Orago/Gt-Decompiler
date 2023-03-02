@@ -16,13 +16,15 @@ class BinaryReader {
 		this.index += 4;
 		return val;
 	}
-    read_char() {
-    	const val = this.buff[this.index];
-      this.index++;
-    	return val;
-    }
+	read_char() {
+		const val = this.buff[this.index];
+		this.index++;
+		return val;
+	}
 }
-var SECRET = "PBG892FXX982ABC*"
+
+var SECRET = 'PBG892FXX982ABC*';
+
 function xordec(ID, nlen, pos, enc, data) {
 	let str = '';
 
@@ -31,6 +33,7 @@ function xordec(ID, nlen, pos, enc, data) {
 			str += String.fromCharCode(data[pos]);
 			pos += 1;
 		}
+
 	else
 		for (let i = 0; i < nlen; i++) {
 			str += String.fromCharCode(data[pos] ^ SECRET.charCodeAt((ID + i) % SECRET.length));
@@ -78,9 +81,6 @@ const get_item = r => {
 
 	var extraFileHash = r.read_int();
 	var audioVolume = r.read_int();
-
-
-	
 
 	//#region //* Pet Data *//
 	let petNameLength = r.read_short();
@@ -188,7 +188,7 @@ const get_item = r => {
 	}
 
 	for (const [key, value] of Object.entries(opts))
-		if (value != "" && value != 0)
+		if (value != '' && value != 0)
 			itemData[key] = value;
 
 	return itemData;
@@ -224,8 +224,11 @@ const parse = (directory = 'items.dat', requirement = () => true, resultData = i
 const _compare_items__handle = ([firstKeys, secondKeys], item_name) => {
 	let mode = 0;
 
-	if (!firstKeys.includes(item_name)) mode = 1;
-	if (!secondKeys.includes(item_name)) mode = 2;
+	if (!firstKeys.includes(item_name))
+		mode = 1;
+
+	if (!secondKeys.includes(item_name))
+		mode = 2;
 
 	return { mode };
 }
@@ -245,38 +248,40 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 	const changedItemIDs = [];
 	const changes = [];
 
-	const fN_mode = [firstParsed.fileName, secondParsed.fileName];
-	const rev_fN_mode = fN_mode.reverse();
-
 	for (let [name, data] of Object.entries(secondParsed.items)){
 		const { mode } = _compare_items__handle([firstKeys, secondKeys], name);
 		if (mode == 0) continue;
 
-		changedItems.push( handle_return(name, data).name );
+		changedItems.push(
+			handle_return(name, data).name
+		);
+
 		changedItemIDs.push(name);
-		changes.push(`${name} was found in ${fN_mode[mode]} but not ${rev_fN_mode[mode]}`)
+
+		changes.push(`[+] ${firstParsed.fileName}: ${name}`);
 	}
 
 	for (let [name, data] of Object.entries(firstParsed.items)){
 		if (changedItems.includes(name)) continue;
 
 		const { mode } = _compare_items__handle([firstKeys, secondKeys], name);
-		if (mode == 0) continue;
 
-		
-		if (!changedItemIDs.includes(name)){
-			changedItems.push( handle_return(name, data).name );
-			changes.push(`${name} was found in ${rev_fN_mode[mode - 1]} but not ${fN_mode[mode - 1]}`)
-		}
+		if (mode == 0 || changedItemIDs.includes(name)) continue;
+
+		changedItems.push(
+			handle_return(name, data).name
+		);
+
+		changes.push(`[-] ${secondParsed.fileName}: ${name}`);
 	}
-	
+
+	secondParsed.files = [firstParsed.fileName, secondParsed.fileName];
+
+	delete secondParsed.fileName;
 	delete secondParsed.items;
 	secondParsed.changes = changes;
 	secondParsed.newItemCount = changedItems.length;
 	secondParsed.items = changedItems;
-
-	console.log(changedItems.join(', '))
-	
 
 	return secondParsed;
 }
