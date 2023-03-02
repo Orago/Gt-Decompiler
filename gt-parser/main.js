@@ -194,7 +194,7 @@ const get_item = r => {
 	return itemData;
 }
 
-const parse = (directory = 'items.dat') => {
+const parse = (directory = 'items.dat', requirement = () => true, resultData = item => item) => {
 	let buffer;
 
 	try      { buffer = fs.readFileSync(directory);   }
@@ -213,7 +213,9 @@ const parse = (directory = 'items.dat') => {
 	for (let i = 0; i < itemsDat.itemCount; i++){
 		const item = get_item(r);
 
-		itemsDat.items[item.name] = item;
+		if (!requirement(item, itemsDat)) continue;
+
+		itemsDat.items[item.name] = resultData(item);
 	}
 
 	return itemsDat;
@@ -240,6 +242,7 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 	const secondKeys = Object.keys(secondParsed.items);
 	
 	const changedItems = [];
+	const changedItemIDs = [];
 	const changes = [];
 
 	const fN_mode = [firstParsed.fileName, secondParsed.fileName];
@@ -249,7 +252,8 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 		const { mode } = _compare_items__handle([firstKeys, secondKeys], name);
 		if (mode == 0) continue;
 
-		changedItems.push( handle_return(name, data) );
+		changedItems.push( handle_return(name, data).name );
+		changedItemIDs.push(name);
 		changes.push(`${name} was found in ${fN_mode[mode]} but not ${rev_fN_mode[mode]}`)
 	}
 
@@ -259,14 +263,19 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 		const { mode } = _compare_items__handle([firstKeys, secondKeys], name);
 		if (mode == 0) continue;
 
-		changedItems.push( handle_return(name, data) );
-		changes.push(`${name} was found in ${rev_fN_mode[mode - 1]} but not ${fN_mode[mode - 1]}`)
+		
+		if (!changedItemIDs.includes(name)){
+			changedItems.push( handle_return(name, data).name );
+			changes.push(`${name} was found in ${rev_fN_mode[mode - 1]} but not ${fN_mode[mode - 1]}`)
+		}
 	}
 	
 	delete secondParsed.items;
 	secondParsed.changes = changes;
 	secondParsed.newItemCount = changedItems.length;
 	secondParsed.items = changedItems;
+
+	console.log(changedItems.join(', '))
 	
 
 	return secondParsed;
