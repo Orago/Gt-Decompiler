@@ -12,31 +12,10 @@ const itemArray = Object.entries(itemData.items);
 const asyncSleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 const generateItemContent = async item => {
-	const spriteCanvas = new brush([32, 32]).setSmoothing(false);
-
-	spriteCanvas.shape({
-		color: 'red',
-		x: 0,
-		y: 0,
-		w: spriteCanvas.width(),
-		h: spriteCanvas.height()
-	});
-	
 	return node.div.class('hidechildren')(
 		node.hr,
 	
 		node.div.class('container center-box')(
-			generateProxyNode(
-				spriteCanvas.canvas
-			).class('w-20 aspect-ratio'),
-
-			// node.img.class('w-20 aspect-ratio')
-			// .styles({
-			// 	background: `url(${
-			// 		`/output/images/${item.textureName.replace(/.rttex/g, '.png')}`
-			// 	}) no-repeat calc(-32px * ${item.textureX}) calc(-32px * ${item.textureY})`
-			// 	//url("/output/images/player_shirt.png") 0px 0px / calc(100% * 8)
-			// }),
 			node.p(`Name: ${item.name}`),
 			node.p(`ID: ${item.ID}`),
 			node.p(`Rarity: ${item.rarity}`),
@@ -66,19 +45,42 @@ const generateItemContent = async item => {
 	);
 }
 
-const buildItem = item => {
+const buildItem = async item => {
 	let loaded = false;
 
 	const contentNode = node.div;
 
+	const spriteCanvas = new brush([32, 32]).setSmoothing(false);
+	const sprite = await itemSprites.promise(`/output/images/${item.textureName.replace(/.rttex/g, '.png')}`);
+
+	spriteCanvas.image(
+		sprite,
+		[
+			32 * item.textureX,
+			32 * item.textureY,
+			32,
+			32
+		],
+		[
+			0,
+			0,
+			spriteCanvas.width(),
+			spriteCanvas.height()
+		]
+	);
+
 	const itemElement = node.div.class('container center-box collapsed')(
-		node.div.class('flex flex-row justify-space-between')(
-			node.h1(`${item.name}`),
-			node.button.class('font-smasher')(
-				node.h4('COLLAPSE')
+		node.div.class('flex flex-row justify-space-between').styles({ height: '50px' })(
+			generateProxyNode(
+				spriteCanvas.canvas
 			)
+			.class('h-100 aspect-ratio pixel-perfect'),
+
+			node.h1(`${item.name}`).styles({ fontSize: '20px' }),
+
+			node.button.class('font-smasher')('COLLAPSE')
+
 			.on('click', async () => {
-				itemElement.toggleClass('collapsed');
 				
 				if (loaded == false){
 					loaded = true;
@@ -87,6 +89,9 @@ const buildItem = item => {
 						await generateItemContent(item)
 					);
 				}
+
+				itemElement.toggleClass('collapsed');
+
 			})
 		),
 
@@ -100,9 +105,7 @@ async function delayGenerateItems ({ container, items, ms = 200 }) {
 	for (let [name, item] of items){
 		await asyncSleep(ms);
 
-		container(
-			buildItem(item)
-		);
+		buildItem(item).then(container);
 	}
 }
 

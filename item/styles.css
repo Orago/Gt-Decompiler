@@ -118,13 +118,15 @@ button {
 	color: var(--button-text);
 	box-shadow: 5px 5px var(--button-shadow);
 
-	padding: 5px;
-	margin: 10px;
+	padding: 2px;
+	margin: 4px;
 
 	text-decoration: none;
 
 	transition: .3s;
 	cursor: pointer;
+	border-radius: 5px;
+	font-weight: 900;
 }
 
 button:hover {
@@ -138,7 +140,7 @@ button:hover {
 }
 
 .collapsed .hidechildren {
-	/* opacity: 0; */
+	opacity: 0;
 	height: 0;
 	margin: 0;
 	overflow: hidden;
