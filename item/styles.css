@@ -1,0 +1,145 @@
+@font-face {
+  font-family: kitto;
+  src: url(./fonts/Kitto.otf);
+}
+
+@font-face {
+  font-family: baksoSapi;
+  src: url(./fonts/BaksoSapi.otf);
+}
+
+@font-face {
+  font-family: smasher;
+  src: url(./fonts/smasher.ttf);
+}
+
+.font-smasher { font-family: smasher, sans-serif; }
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+:root {
+	--main-bg: rgb(29, 29, 29);
+	--main-text: rgb(161, 78, 26);
+
+	--button-bg: rgb(231, 231, 231);
+	--button-shadow: rgb(133, 133, 133);
+	--button-text: rgb(63, 63, 63);
+
+	--nav-bg: rgb(240, 138, 75);
+	--nav-text: rgb(134, 64, 19);
+
+	--container-bg: rgb(48, 43, 39);
+	--container-border: rgb(90, 71, 65);
+	--container-text: white;
+
+	--divider: rgb(190, 86, 22);
+}
+
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: baksoSapi;
+	background-color: var(--main-bg);
+	color: var(--main-text);
+}
+
+nav.main {
+	padding: 10px;
+	background-color: var(--nav-bg);
+	width: 100%;
+	border-bottom: 2px dashed var(--main-bg);
+}
+
+nav .title {
+	display: inline-block;
+	font-family: smasher, sans-serif;
+	text-decoration: none;
+	color: var(--nav-text);
+	font-size: 40px;
+	transition: .2s;
+}
+
+nav .title:hover {
+	transform: translate(1px, 1px);
+	text-shadow: 5px 5px 5px rgba(0, 0, 0, .2);
+}
+
+.panels {
+	display: flex;
+	gap: 20px;
+	justify-content: space-evenly;
+	flex-wrap: wrap;
+	padding: 20px;
+}
+
+.container {
+	margin: 20px;
+	padding: 3px;
+	max-width: 80vw;
+	background-color: var(--container-bg);
+	color: var(--container-text);
+
+	border: 3px solid var(--container-border);
+	border-radius: 10px;
+}
+
+.center-box {
+	margin: 20px auto;
+}
+
+.center-text {
+	text-align: center;
+}
+
+p, li {
+	font-family: cursive;
+}
+
+hr {
+	background-color: white;
+	padding: 1px;
+	border-radius: 10px;
+	border: 2px solid rgb(233, 233, 233);
+}
+
+button {
+	display: inline-block;
+
+	background-color: var(--button-bg);
+	color: var(--button-text);
+	box-shadow: 5px 5px var(--button-shadow);
+
+	padding: 5px;
+	margin: 10px;
+
+	text-decoration: none;
+
+	transition: .3s;
+	cursor: pointer;
+}
+
+button:hover {
+	box-shadow: 0px 0px;
+	scale: 1.05;
+}
+
+.hidechildren {
+	transition: .5s;
+	height: auto;
+}
+
+.collapsed .hidechildren {
+	/* opacity: 0; */
+	height: 0;
+	margin: 0;
+	overflow: hidden;
+}
