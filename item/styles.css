@@ -100,6 +100,10 @@ nav .title:hover {
 	text-align: center;
 }
 
+div.info {
+	font-family: 'Courier New', Courier, monospace;
+}
+
 p, li {
 	font-family: cursive;
 }

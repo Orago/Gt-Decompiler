@@ -4,42 +4,44 @@ import itemData from '../output/build.json' assert { type: 'json' };
 import { brush } from './engine/main.js';
 import sprites from './engine/_sprites.js';
 
-let itemSprites = new sprites();
-
+const itemSprites = new sprites();
 
 const itemArray = Object.entries(itemData.items);
 
 const asyncSleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 const generateItemContent = async item => {
+	console.log(item)
+	const info = (text) => node.div(text).class('info');
+
 	return node.div.class('hidechildren')(
 		node.hr,
 	
-		node.div.class('container center-box')(
-			node.p(`Name: ${item.name}`),
-			node.p(`ID: ${item.ID}`),
-			node.p(`Rarity: ${item.rarity}`),
+		node.div.class('container')(
+			info(`Name: ${item.name}`),
+			info(`ID: ${item.ID}`),
+			info(`Rarity: ${item.rarity}`),
 
 			node.hr,
 
-			node.p(`Hits To Break: ${item.breakHits}`),
-			node.p(`Collision: ${item.collisionType}`),
-			node.p(`Drop Chance: ${item.dropChance}`),
-			node.p(`Max Amount: ${item.maxAmount}`),
+			info(`Hits To Break: ${item.breakHits}`),
+			info(`Collision: ${item.collisionType}`),
+			info(`Drop Chance: ${item.dropChance}`),
+			info(`Max Amount: ${item.maxAmount}`),
 
 			node.hr,
 			
-			node.div.class('container center-box')(
+			node.div.class('container')(
 				node.h2('Texture'),
 				node.hr,
 
-				node.p(`Hash: ${item.textureHash}`),
-				node.p(`Length: ${item.textureLength}`),
-				node.p(`Name: ${item.textureLength}`),
+				info(`Hash: ${item.textureHash}`),
+				info(`Length: ${item.textureLength}`),
+				info(`Name: ${item.textureLength}`),
 				node.h3('Coordinates'),
 				node.hr,
-				node.p(`X: ${item.textureX}`),
-				node.p(`Y: ${item.textureY}`)
+				info(`X: ${item.textureX}`),
+				info(`Y: ${item.textureY}`)
 			),
 		)
 	);
@@ -103,7 +105,7 @@ const buildItem = async item => {
 
 async function delayGenerateItems ({ container, items, ms = 200 }) {
 	for (let [name, item] of items){
-		await asyncSleep(ms);
+		// await asyncSleep(ms);
 
 		buildItem(item).then(container);
 	}
@@ -112,13 +114,17 @@ async function delayGenerateItems ({ container, items, ms = 200 }) {
 function findItems (text, { startsWith, endsWith, includes } = {}){
 	if (typeof text !== 'string' || text.length < 3) return [];
 
-	return itemArray.filter(([ID]) => (
+
+	return itemArray.filter(([ID]) => {
+		ID = ID.toLowerCase();
+		
+		return (
 			ID == text ||
-			(includes == true && ID.includes(text)) ||
+			(includes == true   && ID.includes(text)) ||
 			(startsWith == true && ID.startsWith(text)) ||
-			(endsWith == true && ID.endsWith(text))
-		)
-	);
+			(endsWith == true   && ID.endsWith(text))
+		);
+	});
 }
 
 async function run (containerSelector){
@@ -126,18 +132,25 @@ async function run (containerSelector){
 	const itemsNode = node.div;
 
 	let searchValue = '';
+	let boxes;
+	let itemCount = node.div;
 
-	const updateItems = () =>
-		delayGenerateItems({
-			container: itemsNode,
-			items: findItems(searchValue, {
-				includes: boxes.includes.checked,
-				startsWith: boxes.startsWith.checked,
-				endsWith: boxes.endsWith.checked,
-			})
+	const updateItems = () => {
+		const items = findItems(searchValue, {
+			includes: boxes.includes.checked,
+			startsWith: boxes.startsWith.checked,
+			endsWith: boxes.endsWith.checked,
 		});
 
-	const boxes = {
+		itemCount.clear()(`Total Items Found: ${items.length}`);
+
+		delayGenerateItems({
+			container: itemsNode.clear(),
+			items
+		});
+	}
+
+	boxes = {
 		includes:   node.input.attr({ type: 'checkbox', checked: true })(`Starts With <text>`).on('change', updateItems),
 		startsWith: node.input.attr({ type: 'checkbox' })(`Starts With <text>`).on('change', updateItems),
 		endsWith:   node.input.attr({ type: 'checkbox' })(`Ends With <text>`).on('change', updateItems)
@@ -164,7 +177,8 @@ async function run (containerSelector){
 				searchValue = this.value;
 
 				updateItems();
-			})
+			}),
+			itemCount
 		),
 
 		node.hr.class('w-80'),

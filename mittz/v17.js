@@ -185,7 +185,7 @@ const elUtils = {
 			return this;
 		},
 
-		empty (){
+		clear (){
 			this.node.innerText = '';
 
 			return this;
