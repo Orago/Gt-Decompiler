@@ -1,4 +1,5 @@
-const fs = require("fs");
+import fs from 'fs';
+import path from 'path';
 
 class BinaryReader {
 	constructor(buf) {
@@ -18,6 +19,15 @@ class BinaryReader {
 	read_char() {
 		this.index++;
 		return this.buff[this.index - 1];
+	}
+	read_str() {
+		const len = this.buff.readUInt16LE(this.index);
+		this.index += 2;
+		
+		const strBuf = this.buff.slice(this.index, this.index + len);
+		this.index += len;
+		
+		return strBuf.toString();
 	}
 }
 
@@ -42,7 +52,7 @@ function xordec(ID, nlen, pos, enc, data) {
 }
 
 
-const get_item = r => {
+const get_item = (r, dataFile) => {
 	let ID = r.read_int();
 	let editableType = r.read_char();
 	let itemCategory = r.read_char();
@@ -135,6 +145,10 @@ const get_item = r => {
 	r.index += punchOptionsLen;
 	r.index += 13 + 8;
 
+	r.index += 25; // Unk data
+	r.read_str();
+	
+
 	const itemData = {
 		ID,
 		name
@@ -211,7 +225,7 @@ const parse = (directory = 'items.dat', requirement = () => true, resultData = i
 	}
 
 	for (let i = 0; i < itemsDat.itemCount; i++){
-		const item = get_item(r);
+		const item = get_item(r, itemsDat);
 
 		if (!requirement(item, itemsDat)) continue;
 
@@ -289,7 +303,7 @@ const compare_items = (firstFileName, secondFileName, handle_return = _compare_i
 }
 
 const save = async (parsed, fileName = 'output/items.json') => {
-	const dir = require('path').dirname(fileName);
+	const dir = path.dirname(fileName);
 	
 	if (!fs.existsSync(dir))
     fs.mkdirSync(dir);
@@ -300,8 +314,8 @@ const save = async (parsed, fileName = 'output/items.json') => {
 	});
 }
 
-module.exports = {
+export {
 	parse,
 	save,
 	compare_items
-}
+};

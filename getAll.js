@@ -1,7 +1,7 @@
-const { parse, save, compare_items } = require('./gt-parser/main');
+import { parse, save } from './gt-parser/main.js';
 
 const newParsed = parse(
-	'versions/3_2_2023.dat',
+	'C:\\Users\\moshl\\AppData\\Local\\Growtopia\\cache\\items.dat',
 	undefined,
 	item => item
 );
