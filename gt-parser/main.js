@@ -11,10 +11,10 @@ class BinaryReader {
 
 		return this.buff.readUInt16LE(this.index - 2);
 	}
-	read_int() {
-		this.index += 4;
+	read_int (l = 4) {
+		this.index += l;
 
-		return this.buff.readInt32LE(this.index - 4);
+		return this.buff.readInt32LE(this.index - l);
 	}
 	read_char() {
 		this.index++;
@@ -51,8 +51,25 @@ function xordec(ID, nlen, pos, enc, data) {
 	return str;
 }
 
+class GrowtopiaItem {
+	#data = {};
 
-const get_item = (r, dataFile) => {
+	bind (key, value){
+		Object.assign('')
+	}
+
+	get data (){
+		return this.#data;
+	}
+
+
+}
+
+
+const get_item = (r, itemsDat) => {
+	const { version } = itemsDat;
+	// const 
+
 	let ID = r.read_int();
 	let editableType = r.read_char();
 	let itemCategory = r.read_char();
@@ -142,12 +159,29 @@ const get_item = (r, dataFile) => {
 	let punchOptionsLen = r.read_short();
 	let punchOptions = xordec(ID,punchOptionsLen,r.index, true, r.buff);
 
-	r.index += punchOptionsLen;
-	r.index += 13 + 8;
 
-	r.index += 25; // Unk data
-	r.read_str();
 	
+
+	if (version >= 11){
+		r.index += punchOptionsLen;
+	}
+
+	if (version >= 12){
+		r.read_int();
+		r.read_int(9);
+	}
+
+	if (version >= 13){
+		r.read_int();
+	}
+
+	if (version >= 14)
+		r.read_int();
+
+	if (version >= 15){
+		r.read_int(25);
+		r.read_str();
+	}
 
 	const itemData = {
 		ID,
